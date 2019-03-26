@@ -1,4 +1,4 @@
-name: train_keras_cnn_model 
+name: train_keras_cnn_model
 
 conda_env: conda.yaml
 
