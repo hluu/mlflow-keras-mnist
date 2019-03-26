@@ -96,7 +96,6 @@ print('Test accuracy:', score[1])
 mlflow.keras.log_model(model, artifact_path="keras-model")
 
 conda_env = _mlflow_conda_env(
-    path="conda.yaml",
     additional_conda_deps=[
         "keras=={}".format(keras.__version__),
         "tensorflow=={}".format(tf.__version__),
