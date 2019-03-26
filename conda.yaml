@@ -4,7 +4,7 @@ channels:
   - pytorch
 dependencies:
   - python=3.6
-  - pytorch
-  - torchvision
+  - keras
+  - tensorflow-gpu
   - pip:
     - mlflow==0.9.0
