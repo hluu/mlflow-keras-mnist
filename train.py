@@ -113,10 +113,8 @@ class KerasMnistCNN(PythonModel):
             self.model = mlflow.keras.load_model(context.artifacts["keras-model"])
 
     def predict(self, context, input_df):
-        values = input_df.values
-        values = values / 255
         with self.graph.as_default():
-            return self.model.predict(values.reshape(-1, 28, 28, 1))
+            return self.model.predict(input_df.values.reshape(-1, 28, 28, 1))
 
 mlflow.pyfunc.log_model(
     artifact_path="keras-pyfunc",
