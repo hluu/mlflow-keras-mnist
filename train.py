@@ -35,9 +35,6 @@ batch_size = args.batch_size
 epochs = args.epochs
 num_classes = 10
 
-mlflow.log_param("batch_size", batch_size)
-mlflow.log_param("epochs", epochs)
-
 # input image dimensions
 img_rows, img_cols = 28, 28
 
