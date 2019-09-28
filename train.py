@@ -58,6 +58,12 @@ print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
 
+# log the parameters
+mlflow.log_param('batch_size', batch_size)
+mlflow.log_param('epochs', epochs)
+mlflow.log_param('training samples', x_train.shape[0])
+mlflow.log_param('test samples', x_test.shape[0])
+
 # convert class vectors to binary class matrices
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
@@ -72,6 +78,13 @@ model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dense(num_classes, activation='softmax'))
 
+class LogMetricsCallback(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        mlflow.log_metric('training_loss', logs['loss'], epoch)
+        mlflow.log_metric('training_accuracy', logs['accuracy'], epoch)
+        mlflow.log_metric('validation_loss', logs['val_loss'], epoch)
+        mlflow.log_metric('validation_accuracy', logs['val_accuracy'], epoch)
+
 model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['accuracy'])
@@ -80,10 +93,15 @@ model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
-          validation_data=(x_test, y_test))
+          validation_data=(x_test, y_test),
+          callbacks=[LogMetricsCallback()])
+
+# model evaluation
 score = model.evaluate(x_test, y_test, verbose=0)
 
-mlflow.log_metric("cross_entropy_test_loss", score[0])
+print('metric names', model.metrics_names)
+
+mlflow.log_metric("test_loss", score[0])
 mlflow.log_metric("test_accuracy", score[1])
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
