@@ -80,10 +80,11 @@ model.add(Dense(num_classes, activation='softmax'))
 
 class LogMetricsCallback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
+        print("logs", logs)
         mlflow.log_metric('training_loss', logs['loss'], epoch)
-        mlflow.log_metric('training_accuracy', logs['accuracy'], epoch)
+        mlflow.log_metric('training_accuracy', logs['acc'], epoch)
         mlflow.log_metric('validation_loss', logs['val_loss'], epoch)
-        mlflow.log_metric('validation_accuracy', logs['val_accuracy'], epoch)
+        mlflow.log_metric('validation_accuracy', logs['val_acc'], epoch)
 
 model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
@@ -106,17 +107,21 @@ mlflow.log_metric("test_accuracy", score[1])
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
-mlflow.keras.log_model(model, artifact_path="keras-model")
+#mlflow.keras.log_model(model, artifact_path="keras-model")
 
 conda_env = _mlflow_conda_env(
     additional_conda_deps=[
-        "keras=={}".format(keras.__version__),
-        "tensorflow=={}".format(tf.__version__),
+        #"keras=={}".format(keras.__version__),
+        #"tensorflow=={}".format(tf.__version__),
     ],
     additional_pip_deps=[
+        "keras=={}".format(keras.__version__),
+        "tensorflow=={}".format(tf.__version__),
         "cloudpickle=={}".format(cloudpickle.__version__),
-        "mlflow=={}".format(mlflow.__version__),
+        #"mlflow=={}".format(mlflow.__version__),
     ])
+
+mlflow.keras.log_model(model, artifact_path="keras-model", conda_env=conda_env)
 
 class KerasMnistCNN(PythonModel):
 
