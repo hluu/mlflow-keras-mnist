@@ -25,15 +25,23 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
 
-parser = argparse.ArgumentParser(description='Train a Keras CNN model for MNIST classification in PyTorch')
+parser = argparse.ArgumentParser(description='Train a Keras CNN model for MNIST classification')
 parser.add_argument('--batch-size', '-b', type=int, default=128)
 parser.add_argument('--epochs', '-e', type=int, default=4)
+parser.add_argument('--tracking-uri', '-t',  default='http://localhost:7000')
 
 args = parser.parse_args()
 
+tracking_uri = args.tracking_uri
+print('tracking_uri: ', tracking_uri)
 batch_size = args.batch_size
 epochs = args.epochs
 num_classes = 10
+
+# set up experiment
+mlflow.set_tracking_uri(tracking_uri)
+mlflow.set_experiment('Keras MNIST')
+mlflow.start_run()
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -135,6 +143,7 @@ class KerasMnistCNN(PythonModel):
         with self.graph.as_default():
             return self.model.predict(input_df.values.reshape(-1, 28, 28, 1))
 
+
 mlflow.pyfunc.log_model(
     artifact_path="keras-pyfunc",
     python_model=KerasMnistCNN(),
@@ -143,4 +152,8 @@ mlflow.pyfunc.log_model(
     },
     conda_env=conda_env)
 
-print(mlflow.active_run().info.run_uuid)
+print('experiment id:', mlflow.active_run().info.experiment_id)
+print('run id:', mlflow.active_run().info.run_uuid)
+
+
+mlflow.end_run()
